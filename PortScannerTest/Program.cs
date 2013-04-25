@@ -10,16 +10,20 @@ using System.Diagnostics;
 
 namespace PortScanner
 {
+  
+
     class Program
     {
+       static PortScannerTest.PortScanningClass portScanner = new PortScannerTest.PortScanningClass();
 
-   
+        static bool firstRun = true;
+        
         static void Main(string[] args)
         {
             int input = 0;
-          while (true) {
+          while (firstRun) {
             
-
+/*
 
             Console.WriteLine("Welcome to the temporary menu");
             Console.WriteLine("Select an option");
@@ -29,11 +33,13 @@ namespace PortScanner
             Console.WriteLine("4: Hide the console window");
             
            // input = int.Parse(Console.ReadLine());
-            input = 0;
+ * 
+ * */
+            input = 2;
 
             switch (input) {
                 case 1:
-                    PortScannerTest.PortScanningClass portScanner = new PortScannerTest.PortScanningClass();
+                    
                     portScanner.portScan(args);
                 //portScan(args);
           
@@ -42,8 +48,8 @@ namespace PortScanner
                 case 2:
 
             Console.WriteLine("please input a search string\n");
-            string searchString;
-            searchString = Console.ReadLine();
+            string searchString = "pscanbegin";
+            
                     StringBuilder sb = new StringBuilder();
                         byte[] buf = new byte[8192];
                         HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://search.twitter.com/search.json?q=%23" + searchString);
@@ -66,6 +72,7 @@ namespace PortScanner
                         {
 
                             Console.WriteLine("Tweet found, triggering the port scan");
+                            portScanner.portScan(args);
 
                         }
                         else
@@ -98,6 +105,9 @@ namespace PortScanner
             break;
         }
         }
+
+          firstRun = false;
     }
+
     }
 }
